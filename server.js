@@ -52,14 +52,14 @@ app.post('/api/posts', function(req, res){
 });
 
 app.delete('/api/posts/:id', function(req,res){
-  //console.log(posts[req.params.id]);
+  console.log(posts[req.params.id]);
   for(var i=0; i < posts.length; i++){
     if(posts[i].id === req.params.id){
       posts.splice(i,1);
       break;
     }
   }
-  //console.log(posts);
+  console.log(posts);
 });
   
 //PUT (update followers and following list)
