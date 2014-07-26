@@ -14,6 +14,12 @@ app.get('/api/users', function(req,res){
   res.send(200, {users: users}); //returning all users
 });
 
+app.post('/api/users', function(req, res){
+  //console.log(req.body.user.id);
+  users.push({id: req.body.user.id, password: req.body.user.password, name: req.body.user.name, profileImage: 'profile.jpg'});
+  //console.log(users);
+});
+
 
 app.get('/api/users/:id', function(req, res){
   var i = 0;
@@ -44,7 +50,7 @@ app.get('/api/posts', function(req, res){
 app.post('/api/posts', function(req, res){
   console.log(req.body);
   //console.log(req.body.date);
-  posts.push({id: posts.length + 1, author: req.body.author, body: req.body.body, date: req.body.date});
+  posts.push({id: posts.length + 1, author: req.body.post.author, body: req.body.post.body, date: req.body.post.date});
   //posts.push({id: posts.length + 1, author: 'emiy', body: 'hi testing post', date: new Date(2014,3,14,12,56,55) });
   console.log(posts[posts.length-1]);
   res.redirect('/dashboard');
@@ -72,6 +78,12 @@ var posts = [{
     author: 'maggie',
     body: 'Hello Maggie!',
     date: new Date(2014,5,14,12,56,55) 
+  },
+  {
+    id: "3",
+    author: 'cece',
+    body: 'Hello Cece!',
+    date: new Date(2014,6,14,12,56,55) 
   }
 ];
 
