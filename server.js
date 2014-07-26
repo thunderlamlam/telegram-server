@@ -1,11 +1,14 @@
 var express = require('express');
+var bodyParser = require('body-parser');
 var app = express();
 // Route implementation
 
+//bodyParser code
+app.use(bodyParser.json());
+app.use(bodyParser.json({ type: 'application/vnd.api+json' }));
+app.use(bodyParser.urlencoded({ extended: false }));
 
-// Users
-//return this.store.find('user');
-//GET /api/users
+// Users section
 
 app.get('/api/users', function(req,res){
   res.send(200, {users: users}); //returning all users
@@ -28,13 +31,10 @@ app.get('/api/users/:id', function(req, res){
 
 //POST (create new user) //take the user from ember and add it to the array to the backend.... need to also create id to assign to the new user object
 
-
 //PUT (update followers and following list)
 
 
-// Posts
-//return this.store.find('Post');
-//GET /api/posts
+//Posts section
 
 app.get('/api/posts', function(req, res){
   res.send(200, {posts: posts});
@@ -42,9 +42,18 @@ app.get('/api/posts', function(req, res){
 
 //POST (create new post) //take the post object from ember and add it to the array from the backend  <-access new post needs to be req.body.post can't use param
 app.post('/api/posts', function(req, res){
-  console.log("happy");
-
+  console.log(req.body);
+  //console.log(req.body.date);
+  posts.push({id: posts.length + 1, author: req.body.author, body: req.body.body, date: req.body.date});
+  //posts.push({id: posts.length + 1, author: 'emiy', body: 'hi testing post', date: new Date(2014,3,14,12,56,55) });
+  console.log(posts[posts.length-1]);
+  res.redirect('/dashboard');
 });
+
+app.delete('/api/posts/:id', function(req,res){
+  console.log(req.body);
+});
+  
 
 var posts = [{
     id: "1",
