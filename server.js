@@ -35,11 +35,6 @@ app.get('/api/users/:id', function(req, res){
 
 
 
-//POST (create new user) //take the user from ember and add it to the array to the backend.... need to also create id to assign to the new user object
-
-//PUT (update followers and following list)
-
-
 //Posts section
 
 app.get('/api/posts', function(req, res){
@@ -67,6 +62,7 @@ app.delete('/api/posts/:id', function(req,res){
   //console.log(posts);
 });
   
+//PUT (update followers and following list)
 
 var posts = [{
     id: "1",
