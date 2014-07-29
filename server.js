@@ -11,29 +11,37 @@ app.use(bodyParser.urlencoded({ extended: false }));
 // Users section
 
 app.get('/api/users', function(req,res){
+  var password = req.query.password; 
+  var id = req.query.id;
+  var operation = req.query.operation;
+  if(operation == 'login'){
+    for(var i=0; i<users.length; i++){
+      if(users[i].id == id  && users[i].password == password){
+        return res.send(200, {users: [users[i]]}); //remember to return an array to match the ember convention
+      }
+    }
+      return res.send(404);
+  }
   res.send(200, {users: users}); //returning all users
+
 });
 
 app.post('/api/users', function(req, res){
   //console.log(req.body.user.id);
   users.push({id: req.body.user.id, password: req.body.user.password, name: req.body.user.name, profileImage: 'profile.jpg'});
+  return res.send(200, {user: users[users.length-1]});
   //console.log(users);
 });
 
 
 app.get('/api/users/:id', function(req, res){
-  var i = 0;
-  while(user = users[i++]){
-    if (users[i-1].id == req.params.id){
-    //console.log(users[i-1].id);
-    //console.log(req.params.id);
-  //users[0].id == req.params.id   //iterate through all the elemens in the array
-    res.send(200, {user: users[i-1]});
-    };
-  };
+  for(var i=0; i < users.length; i++){
+    if (users[i].id == req.params.id){
+      return res.send(200, {user: users[i]});
+    }
+  }
+    return res.send(404);    
 });
-
-
 
 //Posts section
 
@@ -48,7 +56,7 @@ app.post('/api/posts', function(req, res){
   posts.push({id: posts.length + 1, author: req.body.post.author, body: req.body.post.body, date: req.body.post.date});
   //posts.push({id: posts.length + 1, author: 'emiy', body: 'hi testing post', date: new Date(2014,3,14,12,56,55) });
   console.log(posts[posts.length-1]);
-  res.redirect('/dashboard');
+  return res.send(200, {post: posts[posts.length-1]});
 });
 
 app.delete('/api/posts/:id', function(req,res){
