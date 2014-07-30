@@ -9,6 +9,8 @@ var flash = require('connect-flash')
 // Route implementation
 
 //configuration
+app.use(cookieParser());
+
 app.use(bodyParser.json());
 app.use(bodyParser.json({ type: 'application/vnd.api+json' }));
 app.use(bodyParser.urlencoded({ extended: false }));
