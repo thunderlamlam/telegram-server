@@ -5,38 +5,35 @@ var passport = require('passport')
 , LocalStrategy = require('passport-local').Strategy;
 var app = express();
 var session = require('express-session');
-var flash = require('connect-flash')
 // Route implementation
 
 //configuration
 app.use(cookieParser());
 
-app.use(bodyParser.json());
-app.use(bodyParser.json({ type: 'application/vnd.api+json' }));
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser()); //calling the bodyParser function
 app.use(session({ secret: 'keyboard cat', cookie: { maxAge: 60000 }}));
 app.use(passport.initialize());
 app.use(passport.session());
-app.use(flash());
 
 
 // Passport session stuff
 passport.serializeUser(function(user, done) {
-  done(null, user.id);
+  done(null, user.id);  //give an unique id to create user cookie
 });
 
 passport.deserializeUser(function(id, done) {
   findById(id, function (err, user) {
-    done(err, user);
+    done(err, user);  //whose id is this user belonged to .. in the initialization, u use user.id 
   });
 });
 
+//if in any route, u ca
 
 function findById(id, fn) {
   for (var i=0; i<users.length; i++) {
     var user = users[i];
     if (user.id === id) {
-      return fn(null, user);
+      return fn(null, user); //first argument means no error... that's why it is null
     }
   }
   return fn(null, null);
@@ -63,25 +60,20 @@ passport.use(new LocalStrategy({
 // Users section
 
 app.get('/api/users',
-  passport.authenticate('local'),
-  function(req,res){
-  /*
-  var id = req.query.id;
+  function(req, res, next){
   var operation = req.query.operation;
   if(operation == 'login'){
-    
-  */
-  var id = req.query.id;
-  for(var i=0; i<users.length; i++){
-      if(users[i].id == id){
-        return res.send(200, {users: [users[i]]}); //remember to return an array to match the ember convention
-      }
-    }
-      return res.send(404);
-  
-
-  res.send(200, {users: users}); 
-
+    passport.authenticate('local', function(err, user, info) {
+      if (err) { return res.send(500); }
+      if (!user) { return res.send(404); } 
+      req.logIn(user, function(err) {
+        return res.send(200, {users: [user]});
+      }); 
+    })(req, res, next);
+  }
+  else{
+    res.send(200, {users: users}); 
+  }
 });
 
 
@@ -106,6 +98,7 @@ app.get('/api/users/:id', function(req, res){
 //Posts section
 
 app.get('/api/posts', function(req, res){
+  console.log(req.user); //if there is a sesssion establish, whenever the get is called. the user will be populated based cookie.
   res.send(200, {posts: posts});
 });
 
