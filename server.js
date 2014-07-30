@@ -1,30 +1,88 @@
 var express = require('express');
 var bodyParser = require('body-parser');
+var cookieParser = require('cookie-parser');
+var passport = require('passport')
+, LocalStrategy = require('passport-local').Strategy;
 var app = express();
+var session = require('express-session');
+var flash = require('connect-flash')
 // Route implementation
 
-//bodyParser code
+//configuration
 app.use(bodyParser.json());
 app.use(bodyParser.json({ type: 'application/vnd.api+json' }));
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(session({ secret: 'keyboard cat', cookie: { maxAge: 60000 }}));
+app.use(passport.initialize());
+app.use(passport.session());
+app.use(flash());
+
+
+// Passport session stuff
+passport.serializeUser(function(user, done) {
+  done(null, user.id);
+});
+
+passport.deserializeUser(function(id, done) {
+  findById(id, function (err, user) {
+    done(err, user);
+  });
+});
+
+
+function findById(id, fn) {
+  for (var i=0; i<users.length; i++) {
+    var user = users[i];
+    if (user.id === id) {
+      return fn(null, user);
+    }
+  }
+  return fn(null, null);
+}
+
+
+//local strategy
+
+passport.use(new LocalStrategy({
+    usernameField: 'id',
+    passwordField: 'password'
+  },
+  function(username, password, done) {
+        findById(username, function(err, user) {
+        if (err) { return done(err); }
+        if (!user) { return done(null, false, { message: 'Unknown user ' + username }); }
+        if (user.password != password) { return done(null, false, { message: 'Invalid password' });}
+        return done(null, user);
+      })
+
+  }
+));
 
 // Users section
 
-app.get('/api/users', function(req,res){
-  var password = req.query.password; 
+app.get('/api/users',
+  passport.authenticate('local'),
+  function(req,res){
+  /*
   var id = req.query.id;
   var operation = req.query.operation;
   if(operation == 'login'){
-    for(var i=0; i<users.length; i++){
-      if(users[i].id == id  && users[i].password == password){
+    
+  */
+  var id = req.query.id;
+  for(var i=0; i<users.length; i++){
+      if(users[i].id == id){
         return res.send(200, {users: [users[i]]}); //remember to return an array to match the ember convention
       }
     }
       return res.send(404);
-  }
-  res.send(200, {users: users}); //returning all users
+  
+
+  res.send(200, {users: users}); 
 
 });
+
+
 
 app.post('/api/users', function(req, res){
   //console.log(req.body.user.id);
@@ -68,6 +126,7 @@ app.delete('/api/posts/:id', function(req,res){
     }
   }
   console.log(posts);
+  return res.send(200);
 });
   
 //PUT (update followers and following list)
@@ -128,3 +187,4 @@ var users = [
 var server = app.listen(3000, function() {
     console.log('Listening on port %d', server.address().port);
 });
+
