@@ -93,7 +93,7 @@ app.get('/api/users',
       return res.send(200, {users: [req.user]});
     }
     else{
-      return res.send(200, {users: [null]});
+      return res.send(200, {users: []});
     }
   
 });
