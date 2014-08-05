@@ -48,6 +48,7 @@ function ensureAuthenticated(req, res, next){
 }
 
 
+
 //local strategy
 
 passport.use(new LocalStrategy({
@@ -115,7 +116,7 @@ app.post('/api/posts', ensureAuthenticated, function(req, res){
   console.log(req.body.post.author);
   console.log(req.user.id);
 
-  if(req.user.id == req.body.post.author){
+  if(req.user.id == req.body.post.author){ //checking if the authenticated user is the same as the author
   //console.log(req.body.date);
   //if(req.body.author == req.user)
   posts.push({id: posts.length + 1, author: req.body.post.author, body: req.body.post.body, date: req.body.post.date});
@@ -138,6 +139,15 @@ app.delete('/api/posts/:id', function(req,res){
   console.log(posts);
   return res.send(200);
 });
+
+//logout route
+
+app.get('/logout', function(req, res){
+  console.log("logging out!");
+  req.logout();
+  res.send(200);
+});
+
   
 //PUT (update followers and following list)
 
