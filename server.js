@@ -23,7 +23,7 @@ passport.serializeUser(function(user, done) {
 
 passport.deserializeUser(function(id, done) {
   findById(id, function (err, user) {
-    done(err, user);  //whose id is this user belonged to .. in the initialization, u use user.id 
+    done(err, user);  //whose id is this user belonged to .. in the initialization, find it by user.id 
   });
 });
 
@@ -37,6 +37,14 @@ function findById(id, fn) {
     }
   }
   return fn(null, null);
+}
+
+//authentication middleware
+
+function ensureAuthenticated(req, res, next){
+  if (req.isAuthenticated()){
+    return next();}
+  return res.send(403); //403 forbidden    
 }
 
 
@@ -98,18 +106,25 @@ app.get('/api/users/:id', function(req, res){
 //Posts section
 
 app.get('/api/posts', function(req, res){
-  console.log(req.user); //if there is a sesssion establish, whenever the get is called. the user will be populated based cookie.
+  //console.log(req.user); //if there is a sesssion establish, whenever the get is called. the user will be populated based cookie.
   res.send(200, {posts: posts});
 });
 
 //POST (create new post) //take the post object from ember and add it to the array from the backend  <-access new post needs to be req.body.post can't use param
-app.post('/api/posts', function(req, res){
-  console.log(req.body);
+app.post('/api/posts', ensureAuthenticated, function(req, res){
+  console.log(req.body.post.author);
+  console.log(req.user.id);
+
+  if(req.user.id == req.body.post.author){
   //console.log(req.body.date);
+  //if(req.body.author == req.user)
   posts.push({id: posts.length + 1, author: req.body.post.author, body: req.body.post.body, date: req.body.post.date});
   //posts.push({id: posts.length + 1, author: 'emiy', body: 'hi testing post', date: new Date(2014,3,14,12,56,55) });
-  console.log(posts[posts.length-1]);
-  return res.send(200, {post: posts[posts.length-1]});
+  //console.log(posts[posts.length-1]);
+  return res.send(200, {post: posts[posts.length-1]});}
+  else{
+    return res.send(403);
+  }
 });
 
 app.delete('/api/posts/:id', function(req,res){
