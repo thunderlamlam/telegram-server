@@ -74,6 +74,8 @@ app.get('/api/users',
 
 
     var operation = req.query.operation;
+    var authenticated = req.query.authenticated;
+
     if(operation == 'login'){
 
       passport.authenticate('local', function(err, user, info) {
@@ -84,17 +86,18 @@ app.get('/api/users',
         }); 
       })(req, res, next);
     }
+    else if(authenticated == "true"){
+      if(req.isAuthenticated()){
+        return res.send(200, {users: [req.user]});
+      }
+      else{
+        return res.send(200, {users: []});
+      }
+    }
     else{
       res.send(200, {users: users}); 
     }
 
-    var authenticated = req.query.authenticated;
-    if(authenticated === true){
-      return res.send(200, {users: [req.user]});
-    }
-    else{
-      return res.send(200, {users: []});
-    }
   
 });
 
@@ -143,15 +146,19 @@ app.post('/api/posts', ensureAuthenticated, function(req, res){
   }
 });
 
-app.delete('/api/posts/:id', function(req,res){
-  console.log(posts[req.params.id]);
+app.delete('/api/posts/:id', ensureAuthenticated, function(req,res){
+  //console.log(posts[req.params.id]);
   for(var i=0; i < posts.length; i++){
     if(posts[i].id === req.params.id){
-      posts.splice(i,1);
+      if(req.user.id === posts[i].author){
+      posts.splice(i,1);}
+      else{
+        return res.send(403);
+      } 
       break;
     }
   }
-  console.log(posts);
+  //console.log(posts);
   return res.send(200);
 });
 
