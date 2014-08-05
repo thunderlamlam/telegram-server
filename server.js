@@ -69,23 +69,33 @@ passport.use(new LocalStrategy({
 // Users section
 
 app.get('/api/users',
-  function(req, res, next){
-  var operation = req.query.operation;
-  if(operation == 'login'){
-    passport.authenticate('local', function(err, user, info) {
-      if (err) { return res.send(500); }
-      if (!user) { return res.send(404); } 
-      req.logIn(user, function(err) {
-        return res.send(200, {users: [user]});
-      }); 
-    })(req, res, next);
-  }
-  else{
-    if (req.isAuthenticated()){
-    res.send(200, {users: users}); 
+  function(req, res, next){  
+
+
+
+    var operation = req.query.operation;
+    if(operation == 'login'){
+
+      passport.authenticate('local', function(err, user, info) {
+        if (err) { return res.send(500); }
+        if (!user) { return res.send(404); } 
+        req.logIn(user, function(err) {
+          return res.send(200, {users: [user]});
+        }); 
+      })(req, res, next);
     }
-    return res.send(200, {});
-  }
+    else{
+      res.send(200, {users: users}); 
+    }
+
+    var authenticated = req.query.authenticated;
+    if(authenticated === true){
+      return res.send(200, {users: [req.user]});
+    }
+    else{
+      return res.send(200, {users: [null]});
+    }
+  
 });
 
 
@@ -148,9 +158,11 @@ app.delete('/api/posts/:id', function(req,res){
 //logout route
 
 app.get('/logout', function(req, res){
-  console.log("logging out!");
+  
   req.logout();
-  res.send(200);
+  console.log(req.user);
+  return res.send(200);
+
 });
 
   
