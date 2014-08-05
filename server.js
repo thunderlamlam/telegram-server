@@ -81,7 +81,10 @@ app.get('/api/users',
     })(req, res, next);
   }
   else{
+    if (req.isAuthenticated()){
     res.send(200, {users: users}); 
+    }
+    return res.send(200, {});
   }
 });
 
@@ -96,12 +99,14 @@ app.post('/api/users', function(req, res){
 
 
 app.get('/api/users/:id', function(req, res){
+
   for(var i=0; i < users.length; i++){
     if (users[i].id == req.params.id){
       return res.send(200, {user: users[i]});
     }
   }
     return res.send(404);    
+  
 });
 
 //Posts section
