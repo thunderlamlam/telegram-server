@@ -1,4 +1,5 @@
 var express = require('express');
+var mongoose = require('mongoose');
 var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
 var passport = require('passport')
@@ -15,6 +16,28 @@ app.use(session({ secret: 'keyboard cat', cookie: { maxAge: 60000 }}));
 app.use(passport.initialize());
 app.use(passport.session());
 
+//mongoose stuff
+
+var mongoose = require('mongoose');
+mongoose.connect('mongodb://localhost/test');
+
+var db = mongoose.connection;
+db.on('error', console.error.bind(console, 'connection error:'));
+db.once('open', function callback () {
+  // yay!
+});
+
+//my user schema that has 4 properties
+var userSchema = mongoose.Schema({
+    id: String,
+    name: String,
+    password: String,
+    profileImage: String
+});
+
+//user Model for mongoose.  going to use upper case User to define the mongoose model
+
+var users = mongoose.model('users', userSchema);
 
 // Passport session stuff
 passport.serializeUser(function(user, done) {
@@ -105,9 +128,15 @@ app.get('/api/users',
 
 app.post('/api/users', function(req, res){
   //console.log(req.body.user.id);
-  users.push({id: req.body.user.id, password: req.body.user.password, name: req.body.user.name, profileImage: 'profile.jpg'});
-  return res.send(200, {user: users[users.length-1]});
-  //console.log(users);
+  var User = new users({id: req.body.user.id, password: req.body.user.password, name: req.body.user.name, profileImage: 'profile.jpg'});
+  console.log(User);
+  //users.push({id: req.body.user.id, password: req.body.user.password, name: req.body.user.name, profileImage: 'profile.jpg'});
+  //return res.send(200, {user: users[users.length-1]});
+  
+  return res.send(200, {user: User});
+  //mongoose route
+
+
 });
 
 
@@ -194,7 +223,7 @@ var posts = [{
   }
 ];
 
-var users = [
+/**var users = [
   {
     id: "emily",
     name: "Emily Lam",
@@ -225,7 +254,7 @@ var users = [
   }
 
 ];
-
+**/
 
 
 var server = app.listen(3000, function() {
