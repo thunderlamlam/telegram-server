@@ -53,12 +53,19 @@ passport.deserializeUser(function(id, done) {
 //if in any route, u ca
 
 function findById(id, fn) {
-  for (var i=0; i<users.length; i++) {
+  var user = users.findOne({'id': id}, callback);
+  console.log(user);
+  if (user.id === id){
+    return fn(null, user);
+  }
+  /**for (var i=0; i<users.length; i++) {
     var user = users[i];
     if (user.id === id) {
       return fn(null, user); //first argument means no error... that's why it is null
     }
   }
+  return fn(null, null);
+  **/
   return fn(null, null);
 }
 
@@ -102,7 +109,7 @@ app.get('/api/users',
     if(operation == 'login'){
 
       passport.authenticate('local', function(err, user, info) {
-        if (err) { return res.send(500); }
+        if (err) { return res.send(500); console.log(err);}
         if (!user) { return res.send(404); } 
         req.logIn(user, function(err) {
           return res.send(200, {users: [user]});
@@ -133,6 +140,10 @@ app.post('/api/users', function(req, res){
   //users.push({id: req.body.user.id, password: req.body.user.password, name: req.body.user.name, profileImage: 'profile.jpg'});
   //return res.send(200, {user: users[users.length-1]});
   
+  User.save(function (err, User){
+    if (err) return console.error(err);
+  });
+
   return res.send(200, {user: User});
   //mongoose route
 
