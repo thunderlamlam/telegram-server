@@ -46,19 +46,19 @@ passport.serializeUser(function(user, done) {
 
 passport.deserializeUser(function(id, done) {
   findById(id, function (err, user) {
+    console.log("Deserialize: "+ err + user);
     done(err, user);  //whose id is this user belonged to .. in the initialization, find it by user.id 
+
   });
 });
 
 //if in any route, u ca
 
 function findById(id, fn) {
-  console.log("id: " + id);
   //var user = users.findOne({'id': id}, callback);
   //console.log(users.findOne({ id: 'emily' }));
   users.findOne({ id: id}, function(err, user) {
-    if (err) return console.error(err);
-    console.dir("findbymon:"+user);
+    if (err) return fn(err, null);
     return fn(null, user);
   });
 
@@ -91,9 +91,11 @@ passport.use(new LocalStrategy({
   },
   function(username, password, done) {
         findById(username, function(err, user) {
+        console.log("inside passport:" + err + user);
         if (err) { return done(err); }
         if (!user) { return done(null, false, { message: 'Unknown user ' + username }); }
         if (user.password != password) { return done(null, false, { message: 'Invalid password' });}
+        console.log("inside passport callback:");
         return done(null, user);
       })
 
@@ -109,27 +111,33 @@ app.get('/api/users',
 
     var operation = req.query.operation;
     var authenticated = req.query.authenticated;
-
+    console.log("operation: " + operation);
     if(operation == 'login'){
 
       passport.authenticate('local', function(err, user, info) {
-        console.log("passport: " + user + info);
+        console.log("vlad passport response: " + err+ user + info);
         if (err) { return res.send(500); }
-        if (!user) { console.log("passporterror:"+user); return res.send(404); } 
+        if (!user) { console.log("user not found:"+user); return res.send(404); } 
+        console.log("preparing to login");
         req.logIn(user, function(err) {
+          console.log("sending response login: " + user);
           return res.send(200, {users: [user]});
+
         }); 
       })(req, res, next);
     }
     else if(authenticated == "true"){
       if(req.isAuthenticated()){
+        console.log("sending authenticated response: " );
         return res.send(200, {users: [req.user]});
       }
       else{
+        console.log("sending NO user authenticated response: " );
         return res.send(200, {users: []});
       }
     }
     else{
+      console.log("sending ALL users authenticated response: " );
       res.send(200, {users: users}); 
     }
 
