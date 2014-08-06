@@ -53,11 +53,15 @@ passport.deserializeUser(function(id, done) {
 //if in any route, u ca
 
 function findById(id, fn) {
-  var user = users.findOne({'id': id}, callback);
-  console.log(user);
-  if (user.id === id){
+  console.log("id: " + id);
+  //var user = users.findOne({'id': id}, callback);
+  //console.log(users.findOne({ id: 'emily' }));
+  users.findOne({ id: id}, function(err, user) {
+    if (err) return console.error(err);
+    console.dir("findbymon:"+user);
     return fn(null, user);
-  }
+  });
+
   /**for (var i=0; i<users.length; i++) {
     var user = users[i];
     if (user.id === id) {
@@ -109,8 +113,9 @@ app.get('/api/users',
     if(operation == 'login'){
 
       passport.authenticate('local', function(err, user, info) {
-        if (err) { return res.send(500); console.log(err);}
-        if (!user) { return res.send(404); } 
+        console.log("passport: " + user + info);
+        if (err) { return res.send(500); }
+        if (!user) { console.log("passporterror:"+user); return res.send(404); } 
         req.logIn(user, function(err) {
           return res.send(200, {users: [user]});
         }); 
