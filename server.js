@@ -4,17 +4,28 @@ var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
 var passport = require('passport')
 var LocalStrategy = require('passport-local').Strategy;
-var app = express();
 var session = require('express-session');
+var MongoStore = require('connect-mongostore')(session);
+var app = express();
 var usersRoutes = require('./usersRoutes');
 var postsRoutes = require('./postsRoutes');
 
 //configuration
 app.use(cookieParser());
 app.use(bodyParser()); //calling the bodyParser function
-app.use(session({ secret: 'keyboard cat', cookie: { maxAge: 60000 }}));
+app.use(session({ 
+  secret: 'keyboard cat', 
+  store: new MongoStore({'db': 'sessions'})
+  //cookie: { maxAge: 60000 }
+}));
 app.use(passport.initialize());
 app.use(passport.session());
+
+
+//connect-mongostore 
+
+var connect = require('connect');
+var MongoStore = require('connect-mongostore')(session);
 
 //mongoose stuff
 var mongoose = require('mongoose');
