@@ -45,6 +45,8 @@ var userSchema = mongoose.Schema({
     profileImage: String
 });
 
+
+
 // Passport session stuff
 passport.serializeUser(function(user, done) {
   done(null, user.id);  //give an unique id to create user cookie

@@ -72,8 +72,3 @@ exports.edit = function(req, res){
   });
 };
 
-exports.logout = function(req, res){  
-  req.logout();
-  //console.log(req.user);
-  return res.send(200);
-};
