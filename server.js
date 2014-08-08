@@ -86,9 +86,9 @@ app.post('/api/posts', ensureAuthenticated, postsRoutes.edit);
 app.delete('/api/posts/:id', ensureAuthenticated, postsRoutes.delete);
 
 //logout route
-app.get('/logout', function(req, res){  
+app.get('/api/logout', function(req, res){  
   req.logout();
-  console.log(req.user);
+  console.log("logout");
   return res.send(200);
 });
 

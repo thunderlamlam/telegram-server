@@ -53,7 +53,12 @@ userOperation.edit = function(req, res){
   
   User.save(function (err, User){
     if (err) return res.send(500);
-    return res.send(200, {user: User});
+
+    req.logIn(User, function(err) {
+        console.log("sending response login: " + User);
+        return res.send(200, {user: User});
+
+      }); 
   });
 };
 
