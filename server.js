@@ -1,14 +1,15 @@
 var express = require('express');
-var mongoose = require('mongoose');
 var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
-var passport = require('passport')
 var LocalStrategy = require('passport-local').Strategy;
 var session = require('express-session');
 var MongoStore = require('connect-mongostore')(session);
 var app = express();
 var usersRoutes = require('./usersRoutes');
 var postsRoutes = require('./postsRoutes');
+var conn = require('./databaseConn');
+var passport = require('passport');
+require('./auth')(passport);
 
 //configuration
 app.use(cookieParser());
@@ -30,34 +31,12 @@ var MongoStore = require('connect-mongostore')(session);
 //mongoose stuff
 var mongoose = require('mongoose');
 mongoose.connect('mongodb://localhost/test');
-
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function callback () {
 });
 
-var users = mongoose.model('users', userSchema);
-
-var userSchema = mongoose.Schema({
-    id: String,
-    name: String,
-    password: String,
-    profileImage: String
-});
-
-
-
-// Passport session stuff
-passport.serializeUser(function(user, done) {
-  done(null, user.id);  //give an unique id to create user cookie
-});
-
-passport.deserializeUser(function(id, done) {
-  findById(id, function (err, user) {
-    console.log("Deserialize: "+ err + user);
-    done(err, user);  //whose id is this user belonged to .. in the initialization, find it by user.id 
-  });
-});
+//server function
 
 function findById(id, fn) {
   users.findOne({id: id}, function(err, user) {
@@ -95,6 +74,8 @@ passport.use(new LocalStrategy({
 ));
 
 // Users section
+var users = conn.model('users');
+
 app.get('/api/users', usersRoutes.list);
 app.get('/api/users/:id', usersRoutes.get);
 app.post('/api/users', usersRoutes.edit);

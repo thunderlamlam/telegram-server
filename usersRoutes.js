@@ -1,27 +1,12 @@
 var mongoose = require('mongoose');
 var passport = require('passport');
 var session = require('express-session');
+var userOperation = exports;
+var conn = require('./databaseConn');
 
-//my user schema that has 4 properties
-var userSchema = mongoose.Schema({
-    id: String,
-    name: String,
-    password: String,
-    profileImage: String
-});
-//user Model for mongoose.  going to use upper case User to define the mongoose model
-var users = mongoose.model('users', userSchema);
+var users = conn.model('users');
 
-exports.findId = function findById(id, fn) {
-  users.findOne({id: id}, function(err, user) {
-    if (err){
-      return fn(err, null);
-    }
-    return fn(null, user);
-  });
-}
-
-exports.list = function(req, res, next){  
+userOperation.list = function(req, res, next){  
   var operation = req.query.operation;
   var authenticated = req.query.authenticated;
   console.log("operation: " + operation);
@@ -55,14 +40,14 @@ exports.list = function(req, res, next){
   }
 };
 
-exports.get = function(req, res){
+userOperation.get = function(req, res){
   users.findOne({id: req.params.id}, function(err, user) {
     if (err) return res.send(404);
     return res.send(200, {user: user});
   });  
 };
 
-exports.edit = function(req, res){
+userOperation.edit = function(req, res){
   var User = new users({id: req.body.user.id, password: req.body.user.password, name: req.body.user.name, profileImage: 'profile.jpg'});
   console.log(User);
   
