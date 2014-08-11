@@ -35,8 +35,14 @@ userOperation.list = function(req, res, next){
   }
   else{
     console.log("sending ALL users authenticated response: " );
-      //res.send(200, {users: users});    
-    return res.send(200, {users: []});
+    
+    users.find({}, function(err, cursor){
+      var emberUserArray = [];
+      cursor.forEach(function(user){
+        emberUserArray.push(user);
+      });
+      res.send(200, {users: emberUserArray});
+    });
   }
 };
 

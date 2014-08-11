@@ -18,7 +18,7 @@ postOperation.get = function(req, res){
     res.send(200, {posts: emberPostArray});
   });
 };
-
+//oil of olay
 postOperation.edit = function(req, res){
 
   if(req.user.id === req.body.post.author){ 
@@ -36,21 +36,18 @@ postOperation.edit = function(req, res){
 };
 
 postOperation.delete = function(req,res){
-  //console.log(posts[req.params.id]);
-  //console.log(req.body.post.author);
-
-  console.log(req.user.id);
-  console.log(req.params.id);
-  //var Post = posts.findOne({''})
-  if(req.user.id === req.params.author){
-    posts.remove({_id: posts._id  }, function (err) {
-      if (err) return res.send(500);
-      return res.send(200);
-    // removed!
-    });
-  }
-  else{
-    return res.send(403);
-  }
-  
+  posts.findOne({_id: req.params.id}, function(err, Post) {
+    if (err) return res.send(404);
+    var emberPost = {author: Post.author, body: Post.body, date: Post.date, id : Post._id}
+    
+    if(req.user.id === emberPost.author){
+      posts.remove({_id: req.params.id}, function (err) {
+        if (err) return res.send(500);
+        return res.send(200);
+      });
+    }
+    else{
+      return res.send(403);
+    }
+  });  
 };
