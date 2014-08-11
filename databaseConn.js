@@ -4,7 +4,10 @@ var userSchema = mongoose.Schema({
     id: String,
     name: String,
     password: String,
-    profileImage: String
+    profileImage: String,
+    posts: Array,
+    followers: Array,
+    following: Array
 });
 
 var postSchema = mongoose.Schema({

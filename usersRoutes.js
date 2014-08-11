@@ -8,6 +8,8 @@ var users = conn.model('users');
 
 userOperation.list = function(req, res, next){  
   var operation = req.query.operation;
+  var follows = req.query.follows;
+  var followedBy = req.query.followedBy;
   var authenticated = req.query.authenticated;
   console.log("operation: " + operation);
   if(operation === 'login'){
@@ -33,9 +35,17 @@ userOperation.list = function(req, res, next){
       return res.send(200, {users: []});
     }
   }
+  else if(follows === req.user){
+    console.log("follows: " + follows);
+    return res.send(200, {users: []});
+  }
+  else if(followedBy === req.user){
+    console.log("followby: " + followedBy);
+    return res.send(200, {users: []});
+  }
   else{
     console.log("sending ALL users authenticated response: " );
-    
+
     users.find({}, function(err, cursor){
       var emberUserArray = [];
       cursor.forEach(function(user){

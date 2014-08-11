@@ -9,6 +9,12 @@ var postOperation = exports;
 var posts = conn.model('posts');
 
 postOperation.get = function(req, res){
+
+  var ownedBy = req.query.ownedBy;
+  if(ownedBy === req.user){
+    console.log("ownedBy: " + ownedBy);
+    return res.send(200, {posts: []});
+  }
   posts.find({}, function(err, cursor){
     var emberPostArray = [];
     cursor.forEach(function(post){
@@ -17,6 +23,7 @@ postOperation.get = function(req, res){
     });
     res.send(200, {posts: emberPostArray});
   });
+
 };
 //oil of olay
 postOperation.edit = function(req, res){
