@@ -5,7 +5,6 @@ var userSchema = mongoose.Schema({
     name: String,
     password: String,
     profileImage: String,
-    posts: {type: [], default: []},
     followers: {type: [], default: []},
     following: {type: [], default: []}
 });
