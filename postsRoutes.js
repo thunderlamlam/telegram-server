@@ -6,24 +6,34 @@ var postOperation = exports;
 
 //Posts section
 
-var posts = conn.model('posts');
+var posts = conn.model('posts'); //upper case Post and singular for model and lowercase for object
+
+function makeEmberPost(mongoPost){
+  return {author: mongoPost.author, body: mongoPost.body, date: mongoPost.date, id : mongoPost._id};
+}
+
 
 postOperation.get = function(req, res){
 
   var ownedBy = req.query.ownedBy;
-  if(ownedBy === req.user){
-    console.log("ownedBy: " + ownedBy);
-    return res.send(200, {posts: []});
-  }
-  posts.find({}, function(err, cursor){
-    var emberPostArray = [];
-    cursor.forEach(function(post){
-      var emberPost = {author: post.author, body: post.body, date: post.date, id : post._id};
-      emberPostArray.push(emberPost);
+  if(ownedBy){
+    posts.find({author: req.query.ownedBy}, function(err, cursor){
+      var emberPostArray = [];
+      cursor.forEach(function(post){
+        emberPostArray.push(makeEmberPost(post));
+      });
+      res.send(200, {posts: emberPostArray});
     });
-    res.send(200, {posts: emberPostArray});
-  });
-
+  }
+  else{
+    posts.find({}, function(err, cursor){
+      var emberPostArray = [];
+      cursor.forEach(function(post){
+        emberPostArray.push(makeEmberPost(post));
+      });
+      res.send(200, {posts: emberPostArray});
+    });
+  }
 };
 //oil of olay
 postOperation.edit = function(req, res){
@@ -31,10 +41,9 @@ postOperation.edit = function(req, res){
   if(req.user.id === req.body.post.author){ 
     var Post = new posts({author: req.user.id, body: req.body.post.body, date: req.body.post.date});
     console.log(Post);
-    Post.save(function(err, Post){
+    Post.save(function(err, post){
       if(err) return res.send(500);
-      var emberPost = {author: Post.author, body: Post.body, date: Post.date, id : Post._id};
-      return res.send(200, {post: emberPost});
+      return res.send(200, {post: makeEmberPost(post)});
     });
   }
   else{
@@ -43,11 +52,9 @@ postOperation.edit = function(req, res){
 };
 
 postOperation.delete = function(req,res){
-  posts.findOne({_id: req.params.id}, function(err, Post) {
+  posts.findOne({_id: req.params.id}, function(err, post) {
     if (err) return res.send(404);
-    var emberPost = {author: Post.author, body: Post.body, date: Post.date, id : Post._id}
-    
-    if(req.user.id === emberPost.author){
+    if(req.user.id === makeEmberPost(post).author){
       posts.remove({_id: req.params.id}, function (err) {
         if (err) return res.send(500);
         return res.send(200);

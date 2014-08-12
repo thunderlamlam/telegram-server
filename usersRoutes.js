@@ -35,13 +35,33 @@ userOperation.list = function(req, res, next){
       return res.send(200, {users: []});
     }
   }
-  else if(follows === req.user){
-    console.log("follows: " + follows);
-    return res.send(200, {users: []});
+  else if(follows){
+
+    users.findOne({id: follows}, function(err, user){
+      if (err) return res.send(500);
+      if (!user) return res.send(404);
+      users.find({id: user.followers}, function(err, followers){  //create a new object that only returns fields that's needed bad for bandwidth and security
+        var emberFollowersArray = [];
+        followers.forEach(function(user){
+          emberFollowersArray.push(user);
+        });
+        res.send(200, {users: emberFollowersArray});
+      });
+    });
   }
-  else if(followedBy === req.user){
-    console.log("followby: " + followedBy);
-    return res.send(200, {users: []});
+  else if(followedBy){
+
+    users.findOne({id: followedBy}, function(err, user){
+      if (err) return res.send(500);
+      if (!user) return res.send(404);
+      users.find({id: user.following}, function(err, followings){  //create a new object that only returns fields that's needed bad for bandwidth and security
+        var emberFollowingsArray = [];
+        followings.forEach(function(user){
+          emberFollowingsArray.push(user);
+        });
+        res.send(200, {users: emberFollowingsArray});
+      });
+    });
   }
   else{
     console.log("sending ALL users authenticated response: " );
