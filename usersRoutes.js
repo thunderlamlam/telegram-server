@@ -54,15 +54,18 @@ userOperation.list = function(req, res, next){
     });
   }
   else if(followedBy){
-    
+    console.log("first followedby"+ followedBy);
     users.findOne({id: followedBy}, function(err, user){
       if (err) return res.send(500);
       if (!user) return res.send(404);
+      console.log("followed: " + user.following);
       users.find({id: user.following}, function(err, followings){  //create a new object that only returns fields that's needed bad for bandwidth and security
         var emberFollowingsArray = [];
+        console.log(followings);
         followings.forEach(function(user){
           emberFollowingsArray.push(user);
         });
+        console.log("array:" + emberFollowingsArray);
         res.send(200, {users: emberFollowingsArray});
       });
     });
@@ -102,4 +105,28 @@ userOperation.edit = function(req, res){
       }); 
   });
 };
+
+
+
+userOperation.follow = function(req, res){  
+  var followUser = req.body.followingUsername;
+  users.update({id: req.user.id}, {$push: {following : followUser}},{upsert:true}, function(err){
+    if(err){
+      console.log(err);
+    }
+    else{
+      console.log("Successfully added");
+      return res.send(200, {});
+    }
+
+  });
+};
+
+userOperation.unfollow = function(req, res){  
+  console.log("unfollow");
+  return res.send(200, {});
+};
+
+
+
 

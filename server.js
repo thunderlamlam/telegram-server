@@ -79,6 +79,9 @@ var users = conn.model('users');
 app.get('/api/users', usersRoutes.list);
 app.get('/api/users/:id', usersRoutes.get);
 app.post('/api/users', usersRoutes.edit);
+app.post('/api/follow', usersRoutes.follow);
+app.post('/api/unfollow', usersRoutes.unfollow);
+
 
 //Posts section
 app.get('/api/posts', postsRoutes.get);
@@ -91,6 +94,7 @@ app.get('/api/logout', function(req, res){
   console.log("logout");
   return res.send(200);
 });
+
 
 var server = app.listen(3000, function() {
   console.log('Listening on port %d', server.address().port);
