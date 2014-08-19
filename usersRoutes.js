@@ -42,7 +42,7 @@ userOperation.list = function(req, res, next){
       if (err) return res.send(500);
       if (!user) return res.send(404);
       console.log("follows:" + user.followers);
-      users.find({id: user.followers}, function(err, followers){  //create a new object that only returns fields that's needed bad for bandwidth and security
+      users.find({id: {$in: user.followers}}, function(err, followers){  //create a new object that only returns fields that's needed bad for bandwidth and security
         console.log("inside follows:" + followers);
         var emberFollowersArray = [];
         followers.forEach(function(user){
@@ -59,7 +59,7 @@ userOperation.list = function(req, res, next){
       if (err) return res.send(500);
       if (!user) return res.send(404);
       console.log("followed: " + user.following);
-      users.find({id: user.following}, function(err, followings){  //create a new object that only returns fields that's needed bad for bandwidth and security
+      users.find({id: {$in: user.following}}, function(err, followings){  //create a new object that only returns fields that's needed bad for bandwidth and security
         var emberFollowingsArray = [];
         console.log(followings);
         followings.forEach(function(user){
@@ -116,6 +116,15 @@ userOperation.follow = function(req, res){
     }
     else{
       console.log("Successfully added");
+    }
+
+  });
+  users.update({id: followUser}, {$push: {followers : req.user.id}},{upsert:true}, function(err){
+    if(err){
+      console.log(err);
+    }
+    else{
+      console.log("Successfully added");
       return res.send(200, {});
     }
 
@@ -123,8 +132,29 @@ userOperation.follow = function(req, res){
 };
 
 userOperation.unfollow = function(req, res){  
-  console.log("unfollow");
-  return res.send(200, {});
+
+
+  var unfollowUser = req.body.unfollowingUsername;
+  users.update({id: req.user.id}, {$pull: {following : unfollowUser}}, function(err){
+    if(err){
+      console.log(err);
+    }
+    else{
+      console.log("Successfully removed");
+    }
+
+  });
+  users.update({id: unfollowUser}, {$pull: {followers : req.user.id}}, function(err){
+    if(err){
+      console.log(err);
+    }
+    else{
+      console.log("Successfully removed");
+      return res.send(200, {});
+     
+    }
+
+  });
 };
 
 
